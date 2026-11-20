@@ -77,10 +77,21 @@ export function createRedisFilterStore(opts: Options = {}): FilterStore {
     isPublished: (path) =>
       guarded(async () => {
         const c = await client();
-        await syncVersion(c);
         const hit = cache.get(path);
-        if (hit && hit.expires > now()) return hit.published;
-        const published = Number(await withTimeout(c.sIsMember(KEYS.paths, path), timeoutMs)) === 1;
+        if (hit && hit.expires > now()) {
+          await syncVersion(c);
+          // A publish since the cache entry was made clears the cache.
+          const fresh = cache.get(path);
+          if (fresh) return fresh.published;
+        }
+        // Ask for the version and the path together so a miss costs one round trip.
+        // Both go down the same connection in order, so the membership answer is at
+        // least as new as the version it is cached under.
+        const [, member] = await Promise.all([
+          syncVersion(c),
+          withTimeout(c.sIsMember(KEYS.paths, path), timeoutMs),
+        ]);
+        const published = Number(member) === 1;
         if (cache.size >= maxEntries) cache.clear();
         cache.set(path, { published, expires: now() + cacheMs });
         return published;

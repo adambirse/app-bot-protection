@@ -108,6 +108,6 @@ The shared secret header is a simple way to lock the site to the filter, and it 
 | `REDIS_URL` | in production | Published paths, counters, on/off switch. Unset locally: every request fails open |
 | `FILTER_ORIGIN_SECRET` | in production | Sent to the site as `x-filter-secret`; at least 32 characters |
 | `REQUIRED_FDID` | no | Azure Front Door ID; requests without a matching `X-Azure-FDID` get 403 |
-| `LOOKUP_TIMEOUT_MS` | no | How long to wait for Redis before failing open (default 150) |
+| `LOOKUP_TIMEOUT_MS` | no | How long to wait for Redis before failing open (default 150). Raise it if Redis is in a different region from the filter |
 | `PORT`, `HOST` | no | Node server only (defaults 3002 and 127.0.0.1; use `HOST=0.0.0.0` in a container) |
 
