@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from "vitest";
 import type { FilterStore, Mode, Verdict } from "@cms-bot/filter-store";
-import { createFilterApp, pagePath, type FilterAppOptions } from "./app";
+import { createFilterApp, pagePath, type FilterAppOptions } from "./filter-app";
 
 const SITE = "http://site.internal:3001";
 const SECRET = "s".repeat(40);
