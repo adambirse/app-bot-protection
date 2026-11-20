@@ -1,0 +1,11 @@
+{
+  "name": "@cms-bot/filter-store",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": { ".": "./src/index.ts" },
+  "scripts": { "typecheck": "tsc --noEmit" },
+  "dependencies": {
+    "@redis/client": "^6.3.1"
+  }
+}

@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { listCmsPages, publishStatus, LIMITS } from "@cms-bot/db/cms";
 import { requireUser } from "../lib/auth";
 import { savePage, deletePage, publish } from "./actions";
@@ -18,6 +19,9 @@ export default async function Home({
 
   return (
     <main>
+      <nav>
+        <strong>Pages</strong> · <Link href="/filter">Bot filter</Link>
+      </nav>
       <h1>CMS</h1>
 
       {error && <p role="alert" className="error">{error}</p>}

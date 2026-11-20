@@ -6,3 +6,36 @@ body {
 }
 .error { color: crimson; }
 .page-form { display: grid; gap: 0.5rem; max-width: 480px; }
+
+nav { margin-bottom: 1rem; }
+.controls { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+
+/* Filter dashboard (light only, like the rest of the CMS). Chart colours are the first two
+   slots of a validated categorical palette. */
+.viz-root {
+  --surface-1: #fcfcfb;
+  --text-primary: #0b0b0b;
+  --text-secondary: #52514e;
+  --grid: #e4e3df;
+  --series-1: #2a78d6;
+  --series-2: #eb6834;
+}
+.mode { font-weight: 600; }
+.tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0.75rem; margin: 1rem 0; }
+.tile { border: 1px solid var(--grid); border-radius: 8px; padding: 0.75rem; }
+.tile dt { color: var(--text-secondary); font-size: 0.85rem; }
+.tile dd { margin: 0.25rem 0 0; font-size: 1.75rem; font-variant-numeric: tabular-nums; }
+.chart { margin: 1rem 0; background: var(--surface-1); color: var(--text-primary); border-radius: 8px; padding: 0.75rem; }
+.chart figcaption { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 0.5rem; }
+.chart svg { width: 100%; height: auto; display: block; }
+.legend { color: var(--text-secondary); font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.35rem; }
+.swatch { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-left: 0.5rem; }
+.swatch-forwarded, .fill-forwarded { background: var(--series-1); fill: var(--series-1); }
+.swatch-blocked, .fill-blocked { background: var(--series-2); fill: var(--series-2); }
+.readout { color: var(--text-secondary); font-size: 0.85rem; margin: 0.25rem 0; font-variant-numeric: tabular-nums; }
+.grid { stroke: var(--grid); stroke-width: 1; }
+.baseline { stroke: var(--text-secondary); stroke-width: 1; }
+.axis { fill: var(--text-secondary); font-size: 11px; }
+.hit { fill: transparent; }
+.has-hover .bar:not(.hovered) path { opacity: 0.45; }
+.note { color: var(--text-secondary); font-size: 0.85rem; margin-top: -0.5rem; }

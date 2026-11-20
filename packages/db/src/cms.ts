@@ -39,8 +39,8 @@ export type PublishResult = { published: string[]; publishedAt: Date };
 /**
  * Replace the site's published pages with the current CMS pages, atomically.
  * Publishes are serialised with a transaction-scoped advisory lock and recorded in
- * cms.publish_log. Later this is where the published path set is pushed to Redis
- * for the filter app.
+ * cms.publish_log. Callers then push the new path set to the filter with
+ * syncPublishedPaths().
  */
 export async function publishAll(publishedBy: string): Promise<PublishResult> {
   const client = await getPool().connect();
@@ -65,6 +65,33 @@ export async function publishAll(publishedBy: string): Promise<PublishResult> {
   } finally {
     client.release();
   }
+}
+
+/**
+ * Hand the currently published paths to `sink` (e.g. the filter's Redis set) while
+ * holding the publish lock. Syncs therefore run in the same order as publishes and
+ * can't overwrite a newer path set with an older one.
+ */
+export async function syncPublishedPaths<T>(sink: (paths: string[]) => Promise<T>): Promise<T> {
+  const client = await getPool().connect();
+  try {
+    await client.query("BEGIN READ ONLY");
+    await client.query("SELECT pg_advisory_xact_lock($1)", [PUBLISH_LOCK_KEY]);
+    const { rows } = await client.query<{ path: string }>("SELECT path FROM site.pages ORDER BY path");
+    const result = await sink(rows.map((r) => r.path));
+    await client.query("COMMIT");
+    return result;
+  } catch (err) {
+    await client.query("ROLLBACK").catch(() => {});
+    throw err;
+  } finally {
+    client.release();
+  }
+}
+
+export async function listPublishedPaths(): Promise<string[]> {
+  const { rows } = await getPool().query<{ path: string }>("SELECT path FROM site.pages ORDER BY path");
+  return rows.map((r) => r.path);
 }
 
 export type PublishStatus = { liveCount: number; last: { published_at: Date; published_by: string } | null };
