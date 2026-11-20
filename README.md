@@ -19,7 +19,7 @@ tests               Playwright end-to-end tests (unit tests live next to the cod
 
 ## Security model
 
-- **Basic auth is mandatory.** Each app refuses to start unless `BASIC_AUTH_USER` and `BASIC_AUTH_PASSWORD` (at least 12 characters) are set, and the proxy fails closed if they're missing. `BASIC_AUTH_DISABLED=true` turns it off for local development only, and is refused when `NODE_ENV=production`.
+- **Basic auth is mandatory.** Each app refuses to start unless `BASIC_AUTH_USER` and `BASIC_AUTH_PASSWORD` (at least 9 characters, any characters allowed) are set, and the proxy fails closed if they're missing. `BASIC_AUTH_DISABLED=true` turns it off for local development only, and is refused when `NODE_ENV=production`.
 - **Defence in depth.** The CMS re-checks credentials inside every page render and server action, not only in the proxy.
 - **Least-privilege database users.** Migrations run as the owner. `cms_user` can manage CMS pages, append to the publish log and replace published pages. `site_user` can only `SELECT` from `site.pages`. Neither can change the schema. See `packages/db/migrations/003_app_roles.sql`.
 - **Parameterised SQL only.** No query is built from user input. Limits are enforced in the app and by database `CHECK` constraints.

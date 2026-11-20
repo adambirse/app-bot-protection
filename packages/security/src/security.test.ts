@@ -15,7 +15,8 @@ describe("loadAuthConfig", () => {
   });
 
   it("rejects short passwords and user names containing ':'", () => {
-    expect(() => loadAuthConfig({ BASIC_AUTH_USER: "admin", BASIC_AUTH_PASSWORD: "short" })).toThrow(/12 characters/);
+    expect(() => loadAuthConfig({ BASIC_AUTH_USER: "admin", BASIC_AUTH_PASSWORD: "8chars!!" })).toThrow(/9 characters/);
+    expect(loadAuthConfig({ BASIC_AUTH_USER: "admin", BASIC_AUTH_PASSWORD: "9 chars!?" }).mode).toBe("enabled");
     expect(() => loadAuthConfig({ ...good, BASIC_AUTH_USER: "a:b" })).toThrow(/':'/);
   });
 
