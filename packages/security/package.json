@@ -1,5 +1,5 @@
 {
-  "name": "@cms-bot/basic-auth",
+  "name": "@cms-bot/security",
   "version": "0.0.0",
   "private": true,
   "type": "module",

@@ -5,9 +5,9 @@ import { findSitePage } from "@cms-bot/db/site";
 export const dynamic = "force-dynamic";
 
 export default async function CatchAll({ params }: { params: Promise<{ slug?: string[] }> }) {
+  // Segments arrive still percent-encoded; findSitePage decodes and validates them once.
   const { slug = [] } = await params;
-  const path = "/" + slug.map(decodeURIComponent).join("/");
-  const page = await findSitePage(path);
+  const page = await findSitePage(slug);
   if (!page) notFound();
 
   return (

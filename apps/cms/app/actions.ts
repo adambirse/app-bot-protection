@@ -2,29 +2,36 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { saveCmsPage, deleteCmsPage, publishAll } from "@cms-bot/db/cms";
+import { saveCmsPage, deleteCmsPage, publishAll, ValidationError } from "@cms-bot/db/cms";
+import { requireUser } from "../lib/auth";
 
-export async function savePage(formData: FormData) {
+// Expected validation failures go back to the form as a fixed code. Anything else is
+// rethrown, so Next.js shows its generic error page and the details stay in the logs.
+async function run(action: () => Promise<unknown>, status: string): Promise<never> {
   try {
-    await saveCmsPage({
-      path: String(formData.get("path") ?? ""),
-      title: String(formData.get("title") ?? ""),
-      body: String(formData.get("body") ?? ""),
-    });
+    await action();
   } catch (err) {
-    redirect(`/?error=${encodeURIComponent((err as Error).message)}`);
+    if (err instanceof ValidationError) redirect(`/?error=${err.code}`);
+    throw err;
   }
   revalidatePath("/");
-  redirect("/?saved=1");
+  redirect(`/?status=${status}`);
+}
+
+export async function savePage(formData: FormData) {
+  await requireUser();
+  await run(
+    () => saveCmsPage({ path: formData.get("path"), title: formData.get("title"), body: formData.get("body") }),
+    "saved",
+  );
 }
 
 export async function deletePage(formData: FormData) {
-  await deleteCmsPage(Number(formData.get("id")));
-  revalidatePath("/");
+  await requireUser();
+  await run(() => deleteCmsPage(formData.get("id")), "deleted");
 }
 
 export async function publish() {
-  const { published } = await publishAll();
-  revalidatePath("/");
-  redirect(`/?published=${published.length}`);
+  const user = await requireUser();
+  await run(() => publishAll(user), "published");
 }

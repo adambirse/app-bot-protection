@@ -1,0 +1,8 @@
+body {
+  font-family: system-ui, sans-serif;
+  max-width: 800px;
+  margin: 2rem auto;
+  padding: 0 1rem;
+}
+.error { color: crimson; }
+.page-form { display: grid; gap: 0.5rem; max-width: 480px; }

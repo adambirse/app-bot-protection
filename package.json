@@ -6,14 +6,18 @@
     "db:up": "docker compose up -d --wait",
     "db:down": "docker compose down",
     "db:migrate": "pnpm --filter @cms-bot/db migrate",
+    "db:roles": "pnpm --filter @cms-bot/db roles",
+    "db:setup": "pnpm db:migrate && pnpm db:roles",
     "dev": "pnpm --parallel --filter @cms-bot/cms --filter @cms-bot/site dev",
     "build": "pnpm --filter @cms-bot/cms --filter @cms-bot/site build",
     "typecheck": "pnpm -r typecheck",
+    "test:unit": "vitest run",
     "test:e2e": "playwright test"
   },
   "devDependencies": {
     "@playwright/test": "1.63.0",
     "@types/node": "^22.10.0",
-    "typescript": "^5.7.0"
+    "typescript": "^5.7.0",
+    "vitest": "^3.2.0"
   }
 }

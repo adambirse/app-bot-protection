@@ -9,7 +9,8 @@
     "./paths": "./src/paths.ts"
   },
   "scripts": {
-    "migrate": "node scripts/migrate.mjs",
+    "migrate": "node --env-file-if-exists=../../.env scripts/migrate.mjs",
+    "roles": "node --env-file-if-exists=../../.env scripts/create-login-roles.mjs",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {

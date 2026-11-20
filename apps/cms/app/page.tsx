@@ -1,35 +1,39 @@
-import { listCmsPages, publishedCount } from "@cms-bot/db/cms";
+import { listCmsPages, publishStatus, LIMITS } from "@cms-bot/db/cms";
+import { requireUser } from "../lib/auth";
 import { savePage, deletePage, publish } from "./actions";
+import { ERROR_MESSAGES, STATUS_MESSAGES, lookup } from "./messages";
 
 export const dynamic = "force-dynamic";
 
 export default async function Home({
   searchParams,
 }: {
-  searchParams: Promise<{ error?: string; saved?: string; published?: string }>;
+  searchParams: Promise<{ error?: string | string[]; status?: string | string[] }>;
 }) {
+  await requireUser();
   const params = await searchParams;
-  const [pages, live] = await Promise.all([listCmsPages(), publishedCount()]);
+  const error = lookup(ERROR_MESSAGES, typeof params.error === "string" ? params.error : undefined);
+  const status = lookup(STATUS_MESSAGES, typeof params.status === "string" ? params.status : undefined);
+  const [pages, live] = await Promise.all([listCmsPages(), publishStatus()]);
 
   return (
     <main>
       <h1>CMS</h1>
 
-      {params.error && <p role="alert" style={{ color: "crimson" }}>{params.error}</p>}
-      {params.saved && <p role="status">Page saved.</p>}
-      {params.published && <p role="status">Published {params.published} page(s).</p>}
+      {error && <p role="alert" className="error">{error}</p>}
+      {status && <p role="status">{status}</p>}
 
       <section>
         <h2>Create or update a page</h2>
-        <form action={savePage} style={{ display: "grid", gap: "0.5rem", maxWidth: 480 }}>
+        <form action={savePage} className="page-form">
           <label>
-            Path <input name="path" placeholder="/about/team" required />
+            Path <input name="path" placeholder="/about/team" required maxLength={LIMITS.path} />
           </label>
           <label>
-            Title <input name="title" required />
+            Title <input name="title" required maxLength={LIMITS.title} />
           </label>
           <label>
-            Body <textarea name="body" rows={4} />
+            Body <textarea name="body" rows={4} maxLength={LIMITS.body} />
           </label>
           <button type="submit">Save page</button>
         </form>
@@ -64,7 +68,11 @@ export default async function Home({
 
       <section>
         <h2>Publish</h2>
-        <p>The live site currently has {live} published page(s). Publishing replaces them with the pages above.</p>
+        <p data-testid="publish-status">
+          The live site has {live.liveCount} published page(s).
+          {live.last && <> Last published {live.last.published_at.toISOString()} by {live.last.published_by}.</>}
+        </p>
+        <p>Publishing replaces the live pages with the pages above.</p>
         <form action={publish}>
           <button type="submit">Publish</button>
         </form>
