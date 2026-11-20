@@ -91,6 +91,15 @@ Create Vercel projects from this repo with Root Directory `apps/cms` and `apps/s
 
 For the filter, add a third project with Root Directory `apps/filter` and a Redis (for example Upstash from the Vercel Marketplace). Set on the filter: `SITE_ORIGIN` (the site's URL), `REDIS_URL`, `FILTER_ORIGIN_SECRET` (32+ random characters). Set on the CMS: `REDIS_URL`, and optionally `FILTER_URL` and `SITE_URL` for the demo attack buttons. Then add a Firewall rule on the site project that denies requests without the matching `x-filter-secret` header.
 
+### Hardening for production
+
+The shared secret header is a simple way to lock the site to the filter, and it is fine for this prototype. For a production deployment, consider one or more of:
+
+- **Short-lived signed requests** instead of a fixed secret: the filter signs each forwarded request (for example an HMAC over the path and a timestamp) and the site's edge verifies it.
+- **Network-level isolation**, so the site only accepts traffic from the filter's network (on Azure, Private Link or VNet access restrictions behind Front Door).
+- **Mutual TLS** between the filter and the site.
+- **Rotating** whatever credential is used, and keeping it in a secret store rather than plain configuration.
+
 ### Filter settings
 
 | Variable | Required | Meaning |

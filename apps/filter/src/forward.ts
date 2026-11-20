@@ -31,8 +31,7 @@ export type ForwardOptions = {
  * shared secret so the site (or its firewall) can refuse requests that skipped the filter.
  */
 export async function forwardToSite(req: Request, url: URL, opts: ForwardOptions): Promise<Response> {
-  // Concatenate rather than resolve: resolving "//evil.example/x" against the origin
-  // would send the request (and the secret) to another host.
+  // Build the upstream URL from the configured origin and only ever send to that origin.
   const target = new URL(opts.siteOrigin + url.pathname + url.search);
   if (target.origin !== opts.siteOrigin) throw new Error("refusing to forward outside the site origin");
   const headers = new Headers(req.headers);
