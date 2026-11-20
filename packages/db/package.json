@@ -1,0 +1,22 @@
+{
+  "name": "@cms-bot/db",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./cms": "./src/cms.ts",
+    "./site": "./src/site.ts",
+    "./paths": "./src/paths.ts"
+  },
+  "scripts": {
+    "migrate": "node --env-file-if-exists=../../.env scripts/migrate.mjs",
+    "roles": "node --env-file-if-exists=../../.env scripts/create-login-roles.mjs",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "pg": "^8.13.0"
+  },
+  "devDependencies": {
+    "@types/pg": "^8.11.0"
+  }
+}
