@@ -1,0 +1,19 @@
+{
+  "name": "cms-bot-protection",
+  "private": true,
+  "packageManager": "pnpm@10.28.0",
+  "scripts": {
+    "db:up": "docker compose up -d --wait",
+    "db:down": "docker compose down",
+    "db:migrate": "pnpm --filter @cms-bot/db migrate",
+    "dev": "pnpm --parallel --filter @cms-bot/cms --filter @cms-bot/site dev",
+    "build": "pnpm --filter @cms-bot/cms --filter @cms-bot/site build",
+    "typecheck": "pnpm -r typecheck",
+    "test:e2e": "playwright test"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.63.0",
+    "@types/node": "^22.10.0",
+    "typescript": "^5.7.0"
+  }
+}

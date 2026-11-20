@@ -1,0 +1,22 @@
+{
+  "name": "@cms-bot/site",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev -p 3001",
+    "build": "next build",
+    "start": "next start -p 3001",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@cms-bot/basic-auth": "workspace:*",
+    "@cms-bot/db": "workspace:*",
+    "next": "16.4.6",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.0",
+    "@types/react-dom": "^19.2.0"
+  }
+}
