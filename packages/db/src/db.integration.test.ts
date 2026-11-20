@@ -85,4 +85,28 @@ describe.skipIf(!ownerUrl)("database", () => {
       for (const r of results) expect(r.published.length).toBe(cmsCount);
     });
   });
+
+  describe("syncPublishedPaths", () => {
+    it("hands the live paths to the sink under the publish lock, in order with publishes", async () => {
+      const { publishAll, syncPublishedPaths } = await import("./cms");
+      const order: string[] = [];
+      const sync = syncPublishedPaths(async (paths) => {
+        order.push("sync-start");
+        await new Promise((r) => setTimeout(r, 200));
+        order.push("sync-end");
+        return paths;
+      });
+      await new Promise((r) => setTimeout(r, 50));
+      const publish = publishAll("it-sync").then(() => order.push("publish-done"));
+      const [paths] = await Promise.all([sync, publish]);
+      expect(order).toEqual(["sync-start", "sync-end", "publish-done"]);
+      const live = (await cms.query("SELECT path FROM site.pages ORDER BY path")).rows.map((r) => r.path);
+      expect(paths).toEqual(live);
+    });
+
+    it("rolls back and rethrows if the sink fails", async () => {
+      const { syncPublishedPaths } = await import("./cms");
+      await expect(syncPublishedPaths(async () => Promise.reject(new Error("redis down")))).rejects.toThrow("redis down");
+    });
+  });
 });

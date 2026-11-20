@@ -16,6 +16,22 @@ export const STATUS_MESSAGES = {
   saved: "Page saved.",
   deleted: "Page deleted.",
   published: "Site published.",
+  published_filter_stale:
+    "Site published, but the filter's list of pages could not be updated. Use Resync on the Filter page.",
+} as const;
+
+export const FILTER_STATUS_MESSAGES = {
+  mode_enforce: "Filter switched on: unknown paths are blocked.",
+  mode_passthrough: "Filter switched off: every request is passed to the site.",
+  reset: "Counters reset.",
+  resynced: "The filter's list of pages now matches the live site.",
+  attack_done: "Demo attack finished. See the result below.",
+} as const;
+
+export const FILTER_ERROR_MESSAGES = {
+  redis_unavailable: "Redis could not be reached, so nothing was changed.",
+  attack_unavailable: "That demo target is not configured (set FILTER_URL or SITE_URL).",
+  invalid_request: "That request was not valid.",
 } as const;
 
 export function lookup<T extends Record<string, string>>(map: T, key: string | undefined): string | null {

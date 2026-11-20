@@ -1,5 +1,5 @@
-# Local development database only. The owner account runs migrations; the apps
-# connect as their own least-privilege users (pnpm db:setup creates them).
+# Local development services only: Postgres and Redis. The owner account runs migrations;
+# the apps connect as their own least-privilege users (pnpm db:setup creates them).
 services:
   postgres:
     image: postgres:16
@@ -16,6 +16,20 @@ services:
       interval: 2s
       timeout: 5s
       retries: 20
+  # Published paths, counters and the on/off switch for the bot filter.
+  redis:
+    image: redis:7.4-alpine
+    command: ["redis-server", "--appendonly", "yes"]
+    ports:
+      - "127.0.0.1:6379:6379"
+    volumes:
+      - redisdata:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 2s
+      timeout: 5s
+      retries: 20
 
 volumes:
   pgdata:
+  redisdata:

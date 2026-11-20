@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@cms-bot/db": "workspace:*",
+    "@cms-bot/filter-store": "workspace:*",
     "@cms-bot/security": "workspace:*",
     "next": "16.4.6",
     "react": "^19.2.0",

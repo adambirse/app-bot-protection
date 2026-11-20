@@ -1,0 +1,23 @@
+{
+  "name": "@cms-bot/filter",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch --env-file-if-exists=.env.local src/server.ts",
+    "build": "esbuild src/server.ts --bundle --platform=node --target=node22 --format=esm --outfile=dist/server.mjs --banner:js=\"import { createRequire } from 'node:module'; const require = createRequire(import.meta.url);\"",
+    "start": "node --env-file-if-exists=.env.local dist/server.mjs",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@cms-bot/db": "workspace:*",
+    "@cms-bot/filter-store": "workspace:*",
+    "@hono/node-server": "^2.1.11",
+    "@vercel/functions": "^3.11.3",
+    "hono": "^4.13.19"
+  },
+  "devDependencies": {
+    "esbuild": "^0.28.2",
+    "tsx": "^4.23.15"
+  }
+}

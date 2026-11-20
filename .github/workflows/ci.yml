@@ -29,11 +29,20 @@ jobs:
         options: >-
           --health-cmd "pg_isready -U owner -d cms_prototype"
           --health-interval 2s --health-timeout 5s --health-retries 20
+      redis:
+        image: redis:7.4-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 2s --health-timeout 5s --health-retries 20
     env:
       # Throwaway credentials for the CI service container only.
       MIGRATION_DATABASE_URL: postgres://owner:ci-owner-password@localhost:5432/cms_prototype
       CMS_DB_PASSWORD: ci-cms-password
       SITE_DB_PASSWORD: ci-site-password
+      # Redis integration tests flush this database; end-to-end tests use database 1.
+      REDIS_TEST_URL: redis://localhost:6379/14
     steps:
       # Third-party actions are pinned to full commit SHAs.
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1

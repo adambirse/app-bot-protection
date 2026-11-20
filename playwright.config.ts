@@ -7,8 +7,13 @@ const dbUrl = (user: string, password: string) =>
 
 export const CMS = { url: "http://localhost:3000", username: "cms-admin", password: "cms-e2e-password" };
 export const SITE = { url: "http://localhost:3001", username: "site-user", password: "site-e2e-password" };
+export const FILTER = { url: "http://localhost:3002" };
 
-// Apps run as production builds (`pnpm build` first). Set E2E_DEV=1 to use `next dev` instead.
+// A separate Redis database from local development (db 0), so tests don't disturb your demo data.
+const redisUrl = process.env.E2E_REDIS_URL ?? "redis://localhost:6379/1";
+const originSecret = "e2e-filter-origin-secret-0123456789abcdef";
+
+// Apps (and the filter) run as production builds (`pnpm build` first). Set E2E_DEV=1 to use `next dev` instead.
 const mode = process.env.E2E_DEV ? "dev" : "start";
 
 export default defineConfig({
@@ -28,6 +33,9 @@ export default defineConfig({
         DATABASE_URL: dbUrl("cms_user", process.env.CMS_DB_PASSWORD ?? "local-cms-password"),
         BASIC_AUTH_USER: CMS.username,
         BASIC_AUTH_PASSWORD: CMS.password,
+        REDIS_URL: redisUrl,
+        FILTER_URL: FILTER.url,
+        SITE_URL: SITE.url,
       },
     },
     {
@@ -38,6 +46,17 @@ export default defineConfig({
         DATABASE_URL: dbUrl("site_user", process.env.SITE_DB_PASSWORD ?? "local-site-password"),
         BASIC_AUTH_USER: SITE.username,
         BASIC_AUTH_PASSWORD: SITE.password,
+      },
+    },
+    {
+      command: `pnpm --filter @cms-bot/filter ${mode}`,
+      port: 3002, // "/" may be blocked (404) until something is published
+      reuseExistingServer: !process.env.CI,
+      env: {
+        PORT: "3002",
+        SITE_ORIGIN: SITE.url,
+        REDIS_URL: redisUrl,
+        FILTER_ORIGIN_SECRET: originSecret,
       },
     },
   ],
