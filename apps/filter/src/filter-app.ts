@@ -38,10 +38,14 @@ export function createFilterApp(opts: FilterAppOptions) {
     try {
       return await withTimeout(
         (async (): Promise<Verdict> => {
-          if ((await store.mode()) === "passthrough") return "passthrough";
           const path = pagePath(pathname);
-          if (path === null) return "blocked";
-          return (await store.isPublished(path)) ? "allowed" : "blocked";
+          // Look up the mode and the path together so a cold lookup is one round trip.
+          const [mode, published] = await Promise.all([
+            store.mode(),
+            path === null ? Promise.resolve(false) : store.isPublished(path),
+          ]);
+          if (mode === "passthrough") return "passthrough";
+          return path !== null && published ? "allowed" : "blocked";
         })(),
         lookupTimeoutMs,
       );
