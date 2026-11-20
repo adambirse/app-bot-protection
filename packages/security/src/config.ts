@@ -2,6 +2,8 @@ export class ConfigError extends Error {
   override name = "ConfigError";
 }
 
+export const MIN_PASSWORD_LENGTH = 9;
+
 export type AuthConfig = { mode: "enabled"; user: string; password: string } | { mode: "disabled" };
 
 type Env = Record<string, string | undefined>;
@@ -24,7 +26,9 @@ export function loadAuthConfig(env: Env = process.env): AuthConfig {
     throw new ConfigError("BASIC_AUTH_USER and BASIC_AUTH_PASSWORD must both be set");
   }
   if (user.includes(":")) throw new ConfigError("BASIC_AUTH_USER must not contain ':'");
-  if (password.length < 12) throw new ConfigError("BASIC_AUTH_PASSWORD must be at least 12 characters");
+  if (password.length < MIN_PASSWORD_LENGTH) {
+    throw new ConfigError(`BASIC_AUTH_PASSWORD must be at least ${MIN_PASSWORD_LENGTH} characters`);
+  }
   return { mode: "enabled", user, password };
 }
 
