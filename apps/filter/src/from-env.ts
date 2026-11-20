@@ -1,5 +1,5 @@
 import { createRedisFilterStore, getRedis } from "@cms-bot/filter-store";
-import { createFilterApp, type FilterAppOptions } from "./app";
+import { createFilterApp, type FilterAppOptions } from "./filter-app";
 import { loadFilterConfig } from "./config";
 
 /** Build the filter from environment variables (throws FilterConfigError if they're wrong). */

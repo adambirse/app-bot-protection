@@ -59,13 +59,14 @@ export function createRedisFilterStore(opts: Options = {}): FilterStore {
   async function syncVersion(c: RedisClient) {
     if (now() - versionCheckedAt < versionCheckMs) return;
     versionCheckedAt = now();
-    const v = await withTimeout(c.get(KEYS.version), timeoutMs);
-    if (v === null) {
+    const raw = await withTimeout(c.get(KEYS.version), timeoutMs);
+    if (raw === null) {
       // Nothing has ever been published to this Redis (new or wiped instance). An empty
       // set would block every page, so treat it as unavailable and fail open instead.
       versionCheckedAt = 0;
       throw new Error("published paths not initialised");
     }
+    const v = String(raw);
     if (v !== knownVersion) {
       cache.clear();
       knownVersion = v;

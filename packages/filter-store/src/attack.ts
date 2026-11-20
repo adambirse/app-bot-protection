@@ -32,8 +32,9 @@ export function attackPaths(realPaths: readonly string[], count: number, random 
 export type AttackResult = { sent: number; reachedSite: number; blocked: number; failed: number; durationMs: number };
 
 /**
- * Fire the requests with limited concurrency. A response with `x-filter: blocked`
- * (or `rejected`) never reached the site; anything else did.
+ * Fire the requests with limited concurrency. A response the filter blocked or
+ * rejected, or that the hosting firewall stopped, never reached the site; anything
+ * else did.
  */
 export async function runAttack(
   baseUrl: string,
@@ -56,7 +57,9 @@ export async function runAttack(
         });
         await res.body?.cancel();
         const verdict = res.headers.get("x-filter");
-        if (verdict === "blocked" || verdict === "rejected") blocked++;
+        // Stopped by the filter, or by the hosting firewall in front of a locked site.
+        const stopped = verdict === "blocked" || verdict === "rejected" || res.headers.has("x-vercel-mitigated");
+        if (stopped) blocked++;
         else reachedSite++;
       } catch {
         failed++; // timeout or network error: no answer from either
