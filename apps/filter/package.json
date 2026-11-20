@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "tsx watch --env-file-if-exists=.env.local src/node-server.ts",
     "build": "esbuild src/node-server.ts --bundle --platform=node --target=node22 --format=esm --outfile=dist/server.mjs --banner:js=\"import { createRequire } from 'node:module'; const require = createRequire(import.meta.url);\"",
+    "build:vercel": "node scripts/build-vercel.mjs",
     "start": "node --env-file-if-exists=.env.local dist/server.mjs",
     "typecheck": "tsc --noEmit"
   },

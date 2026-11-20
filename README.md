@@ -32,7 +32,7 @@ visitor ──▶ (Azure Front Door) ──▶ filter ──▶ site        publ
 - **It fails open.** If Redis is unreachable or slower than `LOOKUP_TIMEOUT_MS` (default 150 ms), or has never received a path list, the request is forwarded and marked `fail-open`. After a failure Redis is skipped for two seconds, so an outage doesn't add a timeout to every request.
 - **Publishing keeps it in sync.** After a publish, the CMS replaces the Redis set atomically (build a staging set, then `RENAME`) while holding the same database lock as publishing, so two publishes can't leave Redis with the older list. If Redis is down the publish still succeeds, the CMS says the filter wasn't updated, and the dashboard's **Resync pages** button fixes it.
 - **The site doesn't change.** The filter adds `x-filter-secret` to everything it forwards (and strips any copy a client sends). Lock the site so it only accepts requests carrying that header: on Vercel with a Firewall rule, on Azure with an access restriction or Front Door rule. Behind Azure Front Door, set `REQUIRED_FDID` to your Front Door ID and the filter refuses requests that didn't come through your profile.
-- **Portable.** The filter is a plain web-standard `fetch` handler (Hono). `src/node-server.ts` runs it as a Node server (local, containers such as Azure Container Apps); `src/index.ts` is the serverless entry that Vercel picks up. It works with any Redis: local, Upstash or Azure Cache for Redis (`rediss://` URLs).
+- **Portable.** The filter is a plain web-standard `fetch` handler (Hono). `src/node-server.ts` runs it as a Node server (local, containers such as Azure Container Apps); `src/vercel-function.ts` is bundled into a single Vercel function (`pnpm --filter @cms-bot/filter build:vercel`, using the Build Output API). It works with any Redis: local, Upstash or Azure Cache for Redis (`rediss://` URLs).
 
 ### Showing it to people
 
@@ -89,7 +89,7 @@ Coverage includes auth config and credential checks, path decoding and validatio
 
 Create Vercel projects from this repo with Root Directory `apps/cms` and `apps/site`. Set `DATABASE_URL` (each app's own user), `BASIC_AUTH_USER` and `BASIC_AUTH_PASSWORD` on each. Use a hosted Postgres (for example Neon), run `pnpm db:migrate` against it as the owner, and create the two login users in the provider as members of `cms_app` and `site_app`.
 
-For the filter, add a third project with Root Directory `apps/filter` and a Redis (for example Upstash from the Vercel Marketplace). Set on the filter: `SITE_ORIGIN` (the site's URL), `REDIS_URL`, `FILTER_ORIGIN_SECRET` (32+ random characters). Set on the CMS: `REDIS_URL`, and optionally `FILTER_URL` and `SITE_URL` for the demo attack buttons. Then add a Firewall rule on the site project that denies requests without the matching `x-filter-secret` header.
+For the filter, add a third project with Root Directory `apps/filter` (its `vercel.json` sets the build) and a Redis (for example Upstash from the Vercel Marketplace). Set on the filter: `SITE_ORIGIN` (the site's URL), `REDIS_URL`, `FILTER_ORIGIN_SECRET` (32+ random characters). Set on the CMS: `REDIS_URL`, and optionally `FILTER_URL` and `SITE_URL` for the demo attack buttons. Then add a Firewall rule on the site project that denies requests without the matching `x-filter-secret` header.
 
 ### Hardening for production
 
