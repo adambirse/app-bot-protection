@@ -119,6 +119,17 @@ describe("filter", () => {
     expect(res.headers.get("x-filter")).toBe("fail-open");
   });
 
+  it("looks up the mode and the path at the same time", async () => {
+    const store = fakeStore(["/about"]);
+    const slow = <T>(v: T) => new Promise<T>((r) => setTimeout(() => r(v), 60));
+    store.mode = vi.fn(() => slow<Mode>("enforce"));
+    store.isPublished = vi.fn(() => slow(true));
+    // Each lookup takes 60ms; done one after the other they would miss the 100ms budget.
+    const { request } = setup({ store, lookupTimeoutMs: 100 });
+    const res = await request("/about");
+    expect(res.headers.get("x-filter")).toBe("allowed");
+  });
+
   it("fails open when no store is configured", async () => {
     const { request } = setup({ store: null });
     expect((await request("/wp-admin")).headers.get("x-filter")).toBe("fail-open");

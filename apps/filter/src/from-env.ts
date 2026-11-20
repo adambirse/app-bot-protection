@@ -7,6 +7,9 @@ export function createFilterAppFromEnv(extra: Pick<FilterAppOptions, "waitUntil"
   const config = loadFilterConfig();
   const redisUrl = config.redisUrl;
   if (!redisUrl) console.warn("[filter] REDIS_URL is not set: every request will be passed to the site");
+  // Start connecting now so the first request doesn't pay for the connection setup.
+  // Failures are handled (and fail open) on the request path.
+  if (redisUrl) getRedis(redisUrl).catch(() => {});
   const store = redisUrl
     ? createRedisFilterStore({ getClient: () => getRedis(redisUrl), timeoutMs: config.lookupTimeoutMs })
     : null;
